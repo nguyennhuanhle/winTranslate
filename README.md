@@ -1,55 +1,71 @@
 # winTranslate
 
-> System-wide text translation for Windows — select text anywhere, get instant translation.
+> 🇬🇧 System-wide text translation for Windows — select text anywhere, get instant translation.
+> 
+> 🇻🇳 Dịch văn bản toàn hệ thống trên Windows — bôi đen chữ ở bất kỳ đâu, dịch ngay lập tức.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-## ✨ Features
+---
 
-- 🌐 **Instant Translation** — Select (highlight) text in any application → popup appears → click Translate
-- 🔍 **Auto-detect Language** — Supports English, Chinese, Japanese, Korean, French, German, Spanish, Thai, Russian, and more
-- 🎯 **Multiple Target Languages** — Vietnamese (default), English, 中文, 日本語, 한국어, Français, Deutsch, Español, ภาษาไทย, Русский
-- 🔄 **Toggle On/Off** — Enable or disable via system tray without affecting other Windows functions
-- 📋 **Copy Result** — One-click copy translation to clipboard
-- 🎨 **Dark Theme UI** — Clean, modern popup with Catppuccin Mocha colors
+## ✨ Features / Tính năng
 
-## 📦 Installation
+- 🌐 **Instant Translation / Dịch nhanh** — Select text in any app → popup appears → click Translate / Bôi đen chữ → popup hiện ra → bấm Translate
+- 🔍 **Auto-detect Language / Tự nhận diện ngôn ngữ** — English, Chinese, Japanese, Korean, French, German, and more / Tiếng Anh, Trung, Nhật, Hàn, Pháp, Đức, v.v.
+- 🎯 **Multiple Target Languages / Nhiều ngôn ngữ đích** — Vietnamese, English, 中文, 日本語, 한국어, Français, Deutsch, Español, ภาษาไทย, Русский
+- 🔄 **Toggle On/Off / Bật/Tắt** — Enable or disable via system tray / Bật tắt qua system tray, không ảnh hưởng Windows
+- 📋 **Copy Result / Sao chép kết quả** — One-click copy translation / Bấm 1 lần để copy bản dịch
+- 🎨 **Dark Theme UI / Giao diện tối** — Clean popup with Catppuccin Mocha colors / Popup đẹp, hiện đại
 
-### Option 1: Download Executable (Recommended)
+---
+
+## 📦 Installation / Cài đặt
+
+### Option 1: Download Executable (Recommended) / Tải file chạy (Khuyên dùng)
+
 Download `winTranslate.exe` from [Releases](../../releases) — no Python needed.
 
-### Option 2: Run from Source
+Tải `winTranslate.exe` từ [Releases](../../releases) — không cần cài Python.
+
+### Option 2: Run from Source / Chạy từ mã nguồn
+
 ```bash
-git clone https://github.com/YOUR_USERNAME/winTranslate.git
+git clone https://github.com/nguyennhuanhle/winTranslate.git
 cd winTranslate
 uv venv
 uv pip install -r requirements.txt
 .venv\Scripts\python main.py
 ```
 
-## 🚀 Usage
+---
 
-1. **Run** `winTranslate.exe` or `python main.py`
-2. **Look for** the blue "T" icon in the system tray
-3. **Select text** (drag to highlight) in any application
-4. **Click "🌐 Translate"** in the popup that appears near your cursor
-5. **View** the translation result and optionally **copy** it
+## 🚀 Usage / Cách sử dụng
 
-### System Tray Options (Right-click the "T" icon)
-- **Enable / Disable** — Toggle text selection monitoring
-- **Target Language** — Choose your preferred translation language
-- **Exit** — Quit the application
+1. **Run / Chạy** `winTranslate.exe` or `python main.py`
+2. **Look for / Tìm** the blue "T" icon in the system tray / icon chữ "T" màu xanh ở khay hệ thống
+3. **Select text / Bôi đen chữ** in any application / ở bất kỳ ứng dụng nào
+4. **Click "🌐 Translate"** in the popup / trong popup hiện ra gần chuột
+5. **View & Copy / Xem & Copy** the translation result / kết quả dịch
 
-## 🛠️ Build from Source
+### System Tray Options / Tuỳ chọn khay hệ thống
+> Right-click the "T" icon / Nhấn chuột phải vào icon "T"
+
+- **Enable / Disable** — Toggle monitoring / Bật/tắt theo dõi
+- **Target Language** — Choose translation language / Chọn ngôn ngữ đích
+- **Exit** — Quit the app / Thoát ứng dụng
+
+---
+
+## 🛠️ Build from Source / Tự build
 
 ```bash
-# Install dependencies
+# Install dependencies / Cài thư viện
 uv pip install -r requirements.txt
 uv pip install pyinstaller
 
-# Generate icon
+# Generate icon / Tạo icon
 .venv\Scripts\python create_icon.py
 
 # Build exe
@@ -58,33 +74,39 @@ uv pip install pyinstaller
 
 Output: `dist/winTranslate.exe`
 
-## 📁 Project Structure
+---
+
+## 📁 Project Structure / Cấu trúc dự án
 
 ```
 winTranslate/
-├── main.py              # Entry point
-├── translator.py        # Translation engine (Google Translate, auto-detect)
-├── selection_detector.py # System-wide text selection detection
-├── popup_ui.py          # Floating popup UI (Tkinter, dark theme)
-├── tray_icon.py         # System tray icon with toggle & settings
-├── create_icon.py       # Icon generator for the executable
-├── requirements.txt     # Python dependencies
-└── run.bat              # Quick-launch script
+├── main.py              # Entry point / Điểm vào
+├── translator.py        # Translation engine / Module dịch (Google Translate)
+├── selection_detector.py # Text selection detection / Phát hiện bôi đen chữ
+├── popup_ui.py          # Floating popup UI / Giao diện popup
+├── tray_icon.py         # System tray icon / Icon khay hệ thống
+├── create_icon.py       # Icon generator / Tạo icon cho exe
+├── requirements.txt     # Dependencies / Thư viện cần thiết
+└── run.bat              # Quick-launch / Chạy nhanh
 ```
 
-## ⚙️ How It Works
+---
 
-1. **Mouse Monitoring** — Uses `pynput` to detect drag-select gestures (mouse press → drag → release)
-2. **Clipboard Capture** — Simulates `Ctrl+C` to copy selected text, reads clipboard, then restores original clipboard content
-3. **Translation** — Sends text to Google Translate via `deep-translator` (auto-detects source language)
-4. **Popup Display** — Shows a Tkinter floating window near the cursor with the translation result
+## ⚙️ How It Works / Cách hoạt động
 
-## 📋 Requirements
+1. **Mouse Monitoring / Theo dõi chuột** — Uses `pynput` to detect drag-select gestures / Dùng `pynput` phát hiện thao tác kéo chọn
+2. **Clipboard Capture / Đọc clipboard** — Simulates `Ctrl+C`, reads clipboard, restores original / Giả lập `Ctrl+C`, đọc clipboard, khôi phục clipboard gốc
+3. **Translation / Dịch thuật** — Google Translate via `deep-translator` (auto-detect source) / Dùng Google Translate, tự nhận diện ngôn ngữ nguồn
+4. **Popup Display / Hiển thị** — Tkinter floating window near cursor / Cửa sổ nhỏ hiện gần con trỏ chuột
+
+---
+
+## 📋 Requirements / Yêu cầu
 
 - Windows 10/11
-- Internet connection (uses Google Translate API)
-- Python 3.10+ (only if running from source)
+- Internet connection / Kết nối mạng (uses Google Translate API)
+- Python 3.10+ (only if running from source / chỉ khi chạy từ mã nguồn)
 
-## 📄 License
+## 📄 License / Giấy phép
 
 MIT License
