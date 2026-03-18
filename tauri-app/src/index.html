@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>winTranslate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div id="app">
+        <div id="status-bar">
+            <span id="status-icon">🌐</span>
+            <span id="status-text">Press <kbd>Ctrl+Shift+T</kbd> to translate selected text</span>
+            <button id="close-btn" title="Close (Esc)">✕</button>
+        </div>
+
+        <div id="scroll-content">
+            <div id="original-section" class="hidden">
+                <div class="section-label">Original</div>
+                <div id="original-text"></div>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <span>Translating...</span>
+            </div>
+
+            <div id="result-section" class="hidden">
+                <div class="result-header">
+                    <div class="section-label">Translation</div>
+                    <button id="copy-btn" title="Copy translation">
+                        <span id="copy-icon">📋</span>
+                        <span id="copy-label">Copy</span>
+                    </button>
+                </div>
+                <div id="translated-text"></div>
+            </div>
+
+            <div id="error-section" class="hidden">
+                <span>❌</span>
+                <span id="error-text"></span>
+            </div>
+
+            <div id="help-section" class="hidden">
+                <div class="section-label">Help / Hướng dẫn</div>
+                <div class="help-content">
+                    <div class="help-block">
+                        <div class="help-title">📌 How to use / Cách sử dụng</div>
+                        <div class="help-step">1. Select text in any app / Bôi đen chữ ở bất kỳ ứng dụng nào</div>
+                        <div class="help-step">2. Press <kbd>Ctrl+Shift+T</kbd> / Nhấn <kbd>Ctrl+Shift+T</kbd></div>
+                        <div class="help-step">3. View translation & click Copy / Xem bản dịch & bấm Copy</div>
+                        <div class="help-step">4. Press <kbd>Esc</kbd> or ✕ to close / Nhấn <kbd>Esc</kbd> hoặc ✕ để đóng</div>
+                    </div>
+                    <div class="help-block">
+                        <div class="help-title">⚙️ System Tray / Khay hệ thống</div>
+                        <div class="help-step">• <strong>Enable</strong> — Turn on/off / Bật/tắt dịch</div>
+                        <div class="help-step">• <strong>Target Language</strong> — Choose language / Chọn ngôn ngữ đích</div>
+                        <div class="help-step">• <strong>Help</strong> — Show this guide / Hiện hướng dẫn này</div>
+                        <div class="help-step">• <strong>Exit</strong> — Quit app / Thoát ứng dụng</div>
+                    </div>
+                    <div class="help-block">
+                        <div class="help-title">💡 Tips / Mẹo</div>
+                        <div class="help-step">• Supports 11 languages / Hỗ trợ 11 ngôn ngữ</div>
+                        <div class="help-step">• Auto-detects source language / Tự nhận diện ngôn ngữ nguồn</div>
+                        <div class="help-step">• Requires internet / Cần kết nối mạng</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        Developed by <a href="https://edtechcorner.com/" target="_blank">Mr Le Nguyen Nhu Anh</a> © 2026
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>

@@ -17,11 +17,16 @@ env/
 *.spec
 *.manifest
 
+# Rust / Tauri
+tauri-app/src-tauri/target/
+tauri-app/node_modules/
+
 # IDE
 .vscode/
 .idea/
 *.swp
 *.swo
+.gemini/
 
 # OS
 Thumbs.db
@@ -30,3 +35,4 @@ Desktop.ini
 
 # Generated
 app.ico
+icon_original.png
