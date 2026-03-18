@@ -1,0 +1,5 @@
+deep-translator
+pynput
+pystray
+Pillow
+pyperclip
