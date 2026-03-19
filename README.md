@@ -16,6 +16,7 @@
 | Version | Platform | Download |
 |---------|----------|----------|
 | **v2.0 (Tauri)** ⭐ | Windows x64 | [winTranslate_2.0.0_x64-setup.exe](../../releases) |
+| **v2.0 (Tauri)** | macOS (Apple Silicon / Intel) | 🚧 *Đang phát triển / In development* |
 | v1.0 (Python) | Windows | [winTranslate.exe](../../releases/tag/v1.0) |
 
 > **Recommended / Khuyên dùng:** Tauri v2 — nhẹ hơn (4 MB vs 22 MB), nhanh hơn, UI đẹp hơn.
@@ -54,7 +55,7 @@
 
 ## 🛠️ Build from Source / Build từ mã nguồn
 
-### Tauri v2 (Recommended)
+### Tauri v2 — Windows (Recommended)
 
 **Prerequisites / Yêu cầu:** [Rust](https://rustup.rs/) + [Node.js](https://nodejs.org/)
 
@@ -67,6 +68,29 @@ npm run tauri build    # Production build
 ```
 
 Output: `src-tauri/target/release/bundle/nsis/winTranslate_*-setup.exe`
+
+### Tauri v2 — macOS
+
+**Prerequisites / Yêu cầu:**
+- [Rust](https://rustup.rs/) + [Node.js](https://nodejs.org/)
+- Xcode Command Line Tools: `xcode-select --install`
+
+```bash
+git clone https://github.com/nguyennhuanhle/winTranslate.git
+cd winTranslate/tauri-app
+npm install
+npm run tauri dev      # Dev mode
+npm run tauri build    # Production build
+```
+
+Output:
+- **Apple Silicon (M1/M2/M3):** `src-tauri/target/release/bundle/dmg/winTranslate_*_aarch64.dmg`
+- **Intel:** `src-tauri/target/release/bundle/dmg/winTranslate_*_x64.dmg`
+
+> **⚠️ Lưu ý / Note:**
+> - macOS có thể yêu cầu cấp quyền **Accessibility** cho app (System Settings → Privacy & Security → Accessibility) để hotkey và auto-copy hoạt động.
+> - macOS may require granting **Accessibility** permission (System Settings → Privacy & Security → Accessibility) for hotkey and auto-copy to work.
+> - Phiên bản macOS đang trong giai đoạn phát triển, có thể chưa ổn định. / macOS version is under development and may not be fully stable.
 
 ### Python v1 (Legacy)
 
