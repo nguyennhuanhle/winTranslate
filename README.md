@@ -15,8 +15,8 @@
 
 | Version | Platform | Download |
 |---------|----------|----------|
-| **v2.0 (Tauri)** ⭐ | Windows x64 | [winTranslate_2.0.0_x64-setup.exe](../../releases) |
-| **v2.0 (Tauri)** | macOS (Apple Silicon / Intel) | 🚧 *Đang phát triển / In development* |
+| **Tauri v2** ⭐ | Windows x64 | [📥 Latest Release](../../releases/latest) |
+| **Tauri v2** | macOS (Apple Silicon / Intel) | 🚧 *Đang phát triển / In development* |
 | v1.0 (Python) | Windows | [winTranslate.exe](../../releases/tag/v1.0) |
 
 > **Recommended / Khuyên dùng:** Tauri v2 — nhẹ hơn (4 MB vs 22 MB), nhanh hơn, UI đẹp hơn.
