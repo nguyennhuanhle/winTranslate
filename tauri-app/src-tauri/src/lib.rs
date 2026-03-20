@@ -231,21 +231,27 @@ pub fn run() {
                                 if let Ok(mut enigo) = enigo::Enigo::new(&enigo::Settings::default()) {
                                     use enigo::{Keyboard, Key, Direction};
 
+                                    // Use Cmd on macOS, Ctrl on other platforms
+                                    #[cfg(target_os = "macos")]
+                                    let modifier = Key::Meta;
+                                    #[cfg(not(target_os = "macos"))]
+                                    let modifier = Key::Control;
+
                                     // IMPORTANT: Release all modifier keys from the hotkey first
-                                    // When user presses Ctrl+Shift+T, those keys are still held
+                                    // When user presses Ctrl+Shift+T (or Cmd+Shift+T on macOS), those keys are still held
                                     let _ = enigo.key(Key::Shift, Direction::Release);
-                                    let _ = enigo.key(Key::Control, Direction::Release);
+                                    let _ = enigo.key(modifier, Direction::Release);
                                     let _ = enigo.key(Key::Unicode('t'), Direction::Release);
 
                                     // Wait for keys to fully release
                                     std::thread::sleep(std::time::Duration::from_millis(100));
 
-                                    // Now simulate a clean Ctrl+C
-                                    let _ = enigo.key(Key::Control, Direction::Press);
+                                    // Now simulate a clean Cmd+C (macOS) or Ctrl+C (Windows/Linux)
+                                    let _ = enigo.key(modifier, Direction::Press);
                                     std::thread::sleep(std::time::Duration::from_millis(20));
                                     let _ = enigo.key(Key::Unicode('c'), Direction::Click);
                                     std::thread::sleep(std::time::Duration::from_millis(20));
-                                    let _ = enigo.key(Key::Control, Direction::Release);
+                                    let _ = enigo.key(modifier, Direction::Release);
 
                                     // Wait for clipboard to update
                                     std::thread::sleep(std::time::Duration::from_millis(200));
