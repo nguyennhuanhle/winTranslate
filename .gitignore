@@ -36,3 +36,8 @@ Desktop.ini
 # Generated
 app.ico
 icon_original.png
+
+# Signing keys
+*.key
+*.key.pub
+.tauri/
