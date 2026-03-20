@@ -3,6 +3,11 @@ const { invoke } = window.__TAURI__.core;
 const { listen } = window.__TAURI__.event;
 const { readText, writeText } = window.__TAURI__.clipboardManager;
 
+// OS-aware shortcut display
+const isMac = navigator.platform.toUpperCase().includes('MAC')
+    || navigator.userAgent.toUpperCase().includes('MAC');
+const SHORTCUT_KEY = isMac ? '⌘+Shift+T' : 'Ctrl+Shift+T';
+
 let appWindow = null;
 try {
     const { getCurrentWindow } = window.__TAURI__.window;
@@ -26,6 +31,12 @@ const errorSection = document.getElementById("error-section");
 const errorText = document.getElementById("error-text");
 const closeBtn = document.getElementById("close-btn");
 const helpSection = document.getElementById("help-section");
+const updateSection = document.getElementById("update-section");
+const updateInfo = document.getElementById("update-info");
+const updateBtn = document.getElementById("update-btn");
+const updateProgress = document.getElementById("update-progress");
+const progressFill = document.getElementById("progress-fill");
+const progressText = document.getElementById("progress-text");
 
 const POPUP_WIDTH = 420;
 const MAX_HEIGHT = 600;
@@ -64,7 +75,9 @@ function resetUI() {
     resultSection.classList.add("hidden");
     errorSection.classList.add("hidden");
     helpSection.classList.add("hidden");
-    statusText.innerHTML = 'Press <kbd>Ctrl+Shift+T</kbd> to translate';
+    updateSection.classList.add("hidden");
+    updateProgress.classList.add("hidden");
+    statusText.innerHTML = `Press <kbd>${SHORTCUT_KEY}</kbd> to translate`;
 }
 
 // Show original text
@@ -139,7 +152,7 @@ listen("trigger-translate", async () => {
         const clipText = await readText();
 
         if (!clipText || !clipText.trim()) {
-            showError("No text found. Select text first, then press Ctrl+Shift+T.");
+            showError(`No text found. Select text first, then press ${SHORTCUT_KEY}.`);
             return;
         }
 
@@ -167,6 +180,87 @@ listen("show-help", () => {
     resizeToFit();
 });
 
+// Listen for check-update trigger from Rust backend
+let pendingUpdate = null;
+listen("check-update", async () => {
+    resetUI();
+    statusText.innerHTML = '🔍 Checking for updates...';
+    loading.classList.remove("hidden");
+    await resizeToFit();
+
+    try {
+        const { check } = await import("@tauri-apps/plugin-updater");
+        const update = await check();
+
+        loading.classList.add("hidden");
+
+        if (update) {
+            pendingUpdate = update;
+            statusText.innerHTML = '🆕 Update available!';
+            updateInfo.innerHTML = `<strong>Version ${update.version}</strong> is available.${update.body ? '<br><br>' + update.body : ''}`;
+            updateSection.classList.remove("hidden");
+            updateBtn.disabled = false;
+            updateBtn.textContent = '⬇️ Install & Restart';
+            updateProgress.classList.add("hidden");
+        } else {
+            statusText.innerHTML = '✅ You are on the latest version!';
+        }
+        await resizeToFit();
+    } catch (e) {
+        loading.classList.add("hidden");
+        showError("Update check failed: " + e.toString());
+    }
+});
+
+// Handle update install button
+document.getElementById("update-btn").addEventListener("click", async () => {
+    if (!pendingUpdate) return;
+
+    updateBtn.disabled = true;
+    updateBtn.textContent = 'Downloading...';
+    updateProgress.classList.remove("hidden");
+    progressFill.style.width = '0%';
+    await resizeToFit();
+
+    try {
+        let downloaded = 0;
+        let contentLength = 0;
+
+        await pendingUpdate.downloadAndInstall((event) => {
+            switch (event.event) {
+                case 'Started':
+                    contentLength = event.data.contentLength || 0;
+                    progressText.textContent = 'Starting download...';
+                    break;
+                case 'Progress':
+                    downloaded += event.data.chunkLength;
+                    if (contentLength > 0) {
+                        const pct = Math.min(100, Math.round((downloaded / contentLength) * 100));
+                        progressFill.style.width = pct + '%';
+                        progressText.textContent = `${pct}% (${(downloaded / 1024 / 1024).toFixed(1)} MB)`;
+                    } else {
+                        progressText.textContent = `${(downloaded / 1024 / 1024).toFixed(1)} MB downloaded`;
+                    }
+                    break;
+                case 'Finished':
+                    progressFill.style.width = '100%';
+                    progressText.textContent = 'Download complete! Restarting...';
+                    updateBtn.textContent = '🔄 Restarting...';
+                    break;
+            }
+        });
+
+        // Relaunch after install
+        const { relaunch } = await import("@tauri-apps/plugin-process");
+        await relaunch();
+    } catch (e) {
+        updateBtn.disabled = false;
+        updateBtn.textContent = '⬇️ Install & Restart';
+        updateProgress.classList.add("hidden");
+        showError("Update failed: " + e.toString());
+    }
+});
+
 // Escape to close
 document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -185,6 +279,9 @@ document.getElementById("status-bar").addEventListener("mousedown", (e) => {
     }
 });
 
-// Initialize
+// Initialize — update all shortcut labels for current OS
+document.querySelectorAll('.shortcut-key').forEach(el => {
+    el.textContent = SHORTCUT_KEY;
+});
 resetUI();
 resizeToFit();

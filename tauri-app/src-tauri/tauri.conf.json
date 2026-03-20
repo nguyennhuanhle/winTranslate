@@ -27,6 +27,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
@@ -35,5 +36,13 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEUwNzIyRkI2OURFMkZEMzcKUldRMy9lS2R0aTl5NEI1bkU0NmV1aXY2UDM3eWVaSzVJb2hvQ00xcWhQT3hEV2lKT3FGUlpYVDEK",
+      "endpoints": [
+        "https://github.com/nguyennhuanhle/winTranslate/releases/latest/download/latest.json"
+      ]
+    }
   }
 }

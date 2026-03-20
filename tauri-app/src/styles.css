@@ -262,4 +262,74 @@ kbd {
     text-decoration: underline;
 }
 
+/* ── Update ── */
+#update-section {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    margin-top: 10px;
+}
+
+.update-content {
+    background: var(--bg-surface);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+#update-info {
+    font-size: 13px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    margin-bottom: 10px;
+}
+
+#update-btn {
+    display: block;
+    width: 100%;
+    padding: 8px 12px;
+    background: var(--accent);
+    color: var(--bg-base);
+    border: none;
+    border-radius: 6px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+#update-btn:hover {
+    filter: brightness(1.15);
+}
+
+#update-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-overlay);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 3px;
+    transition: width 0.2s ease;
+}
+
+#progress-text {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+#update-progress {
+    margin-bottom: 10px;
+}
+
 .hidden { display: none !important; }

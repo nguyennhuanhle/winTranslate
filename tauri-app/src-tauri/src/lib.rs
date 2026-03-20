@@ -101,6 +101,10 @@ fn create_tray_menu(app: &AppHandle, enabled: bool, current_lang: &str) -> Menu<
         MenuItem::with_id(app, "help", "Help / Hướng dẫn", true, None::<&str>)
             .expect("failed to create help item");
 
+    let update_item =
+        MenuItem::with_id(app, "check_update", "Check for Updates", true, None::<&str>)
+            .expect("failed to create update item");
+
     let quit_item =
         MenuItem::with_id(app, "quit", "Exit", true, None::<&str>).expect("failed to create quit");
 
@@ -108,6 +112,7 @@ fn create_tray_menu(app: &AppHandle, enabled: bool, current_lang: &str) -> Menu<
     menu.append(&enable_item).unwrap();
     menu.append(&lang_submenu).unwrap();
     menu.append(&help_item).unwrap();
+    menu.append(&update_item).unwrap();
     menu.append(&quit_item).unwrap();
     menu
 }
@@ -118,6 +123,8 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init())
         .manage(AppState {
             target_lang: Mutex::new("vi".to_string()),
             enabled: Mutex::new(true),
@@ -129,7 +136,11 @@ pub fn run() {
 
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .menu(&tray_menu)
-                .tooltip("winTranslate — Ctrl+Shift+T to translate")
+                .tooltip(if cfg!(target_os = "macos") {
+                    "winTranslate — ⌘+Shift+T to translate"
+                } else {
+                    "winTranslate — Ctrl+Shift+T to translate"
+                })
                 .on_menu_event(move |app, event| {
                     let id = event.id().as_ref();
 
@@ -158,6 +169,12 @@ pub fn run() {
                     } else if id == "help" {
                         // Show help window
                         let _ = app.emit("show-help", ());
+                        if let Some(window) = app.get_webview_window("main") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                        }
+                    } else if id == "check_update" {
+                        let _ = app.emit("check-update", ());
                         if let Some(window) = app.get_webview_window("main") {
                             let _ = window.show();
                             let _ = window.set_focus();
