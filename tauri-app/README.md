@@ -17,6 +17,48 @@
 
 ---
 
+## 📸 Screenshots / Giao diện
+
+<div align="center">
+  <img src="../assets/popup.png" alt="Popup Default" width="400"/>
+  <br/>
+  <em>Global translation popup / Cửa sổ dịch toàn cầu</em>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="../assets/popup_translating.png" alt="Translating" width="400"/>
+  <br/>
+  <em>Translating in progress / Đang dịch...</em>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="../assets/popup_translated.png" alt="Translated" width="400"/>
+  <br/>
+  <em>Translation result / Kết quả dịch</em>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="../assets/popup_help.png" alt="Help Screen" width="400"/>
+  <br/>
+  <em>Help & Usage guide / Hướng dẫn sử dụng</em>
+</div>
+
+<br/>
+
+<div align="center">
+  <img src="../assets/settings.png" alt="Settings Window" width="500"/>
+  <br/>
+  <em>Application Settings / Cài đặt ứng dụng</em>
+</div>
+
+---
+
 ## 🔧 Prerequisites / Yêu cầu
 
 ### All Platforms / Tất cả nền tảng
