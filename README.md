@@ -16,7 +16,7 @@
 | Version | Platform | Download |
 |---------|----------|----------|
 | **Tauri v2** ⭐ | Windows x64 | [📥 Latest Release](../../releases/latest) |
-| **Tauri v2** ⭐ | macOS (Apple Silicon) | [📥 Latest Release](../../releases/latest) |
+| **Tauri v2** ⭐ | macOS (Apple Silicon) | [📥 v2.1.0](../../releases/tag/v2.1.0) |
 | v1.0 (Python) | Windows | [winTranslate.exe](../../releases/tag/v1.0) |
 
 > **Recommended / Khuyên dùng:** Tauri v2 — nhẹ hơn (4 MB vs 22 MB), nhanh hơn, UI đẹp hơn.
@@ -59,7 +59,7 @@
 
 ### Step 1 / Bước 1: Install / Cài đặt
 
-1. Download file `.zip` from [Releases](../../releases/latest) / Tải file `.zip` từ [Releases](../../releases/latest)
+1. Download file `.zip` from [Releases v2.1.0](../../releases/tag/v2.1.0) / Tải file `.zip` từ [Releases v2.1.0](../../releases/tag/v2.1.0)
 2. Unzip → drag `winTranslate.app` into `/Applications` / Giải nén → kéo `winTranslate.app` vào `/Applications`
 
 ### Step 2 / Bước 2: First launch / Mở lần đầu
