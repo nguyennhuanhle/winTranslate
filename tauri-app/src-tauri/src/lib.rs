@@ -231,17 +231,63 @@ pub fn run() {
                                 #[cfg(target_os = "macos")]
                                 {
                                     // On macOS, enigo's Key::Unicode calls TSMGetInputSourceProperty
-                                    // which MUST run on the main thread. Since we're in a spawned thread,
-                                    // use osascript to simulate Cmd+C instead — works from any thread.
-                                    std::thread::sleep(std::time::Duration::from_millis(200));
+                                    // which MUST run on the main thread. Use CGEvent API directly
+                                    // instead — it's thread-safe and much faster than osascript.
+                                    use std::ptr;
 
-                                    let _ = std::process::Command::new("osascript")
-                                        .arg("-e")
-                                        .arg("tell application \"System Events\" to keystroke \"c\" using command down")
-                                        .output();
+                                    extern "C" {
+                                        fn CGEventCreateKeyboardEvent(
+                                            source: *const std::ffi::c_void,
+                                            keycode: u16,
+                                            key_down: bool,
+                                        ) -> *mut std::ffi::c_void;
+                                        fn CGEventSetFlags(event: *mut std::ffi::c_void, flags: u64);
+                                        fn CGEventPost(tap: u32, event: *mut std::ffi::c_void);
+                                        fn CFRelease(cf: *mut std::ffi::c_void);
+                                    }
+
+                                    // macOS virtual keycodes
+                                    const KC_C: u16 = 8;
+                                    const KC_T: u16 = 17;
+                                    // CGEvent flag for Cmd key
+                                    const K_CG_EVENT_FLAG_COMMAND: u64 = 0x00100000;
+                                    // kCGHIDEventTap = 0
+                                    const K_CG_HID_EVENT_TAP: u32 = 0;
+
+                                    // Wait for user to release hotkey keys (Cmd+Shift+T)
+                                    std::thread::sleep(std::time::Duration::from_millis(150));
+
+                                    unsafe {
+                                        // Release 'T' key (in case still held from hotkey)
+                                        let ev = CGEventCreateKeyboardEvent(ptr::null(), KC_T, false);
+                                        if !ev.is_null() {
+                                            CGEventPost(K_CG_HID_EVENT_TAP, ev);
+                                            CFRelease(ev);
+                                        }
+
+                                        std::thread::sleep(std::time::Duration::from_millis(50));
+
+                                        // Press Cmd+C (key down)
+                                        let ev = CGEventCreateKeyboardEvent(ptr::null(), KC_C, true);
+                                        if !ev.is_null() {
+                                            CGEventSetFlags(ev, K_CG_EVENT_FLAG_COMMAND);
+                                            CGEventPost(K_CG_HID_EVENT_TAP, ev);
+                                            CFRelease(ev);
+                                        }
+
+                                        std::thread::sleep(std::time::Duration::from_millis(20));
+
+                                        // Release Cmd+C (key up)
+                                        let ev = CGEventCreateKeyboardEvent(ptr::null(), KC_C, false);
+                                        if !ev.is_null() {
+                                            CGEventSetFlags(ev, K_CG_EVENT_FLAG_COMMAND);
+                                            CGEventPost(K_CG_HID_EVENT_TAP, ev);
+                                            CFRelease(ev);
+                                        }
+                                    }
 
                                     // Wait for clipboard to update
-                                    std::thread::sleep(std::time::Duration::from_millis(200));
+                                    std::thread::sleep(std::time::Duration::from_millis(300));
                                 }
 
                                 #[cfg(not(target_os = "macos"))]
