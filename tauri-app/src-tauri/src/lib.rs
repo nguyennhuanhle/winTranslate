@@ -227,34 +227,48 @@ pub fn run() {
                             // 2. Read clipboard
                             // 3. Emit text to frontend
                             std::thread::spawn(move || {
-                                // Simulate Ctrl+C using enigo
-                                if let Ok(mut enigo) = enigo::Enigo::new(&enigo::Settings::default()) {
-                                    use enigo::{Keyboard, Key, Direction};
+                                // Platform-specific copy simulation
+                                #[cfg(target_os = "macos")]
+                                {
+                                    // On macOS, enigo's Key::Unicode calls TSMGetInputSourceProperty
+                                    // which MUST run on the main thread. Since we're in a spawned thread,
+                                    // use osascript to simulate Cmd+C instead — works from any thread.
+                                    std::thread::sleep(std::time::Duration::from_millis(200));
 
-                                    // Use Cmd on macOS, Ctrl on other platforms
-                                    #[cfg(target_os = "macos")]
-                                    let modifier = Key::Meta;
-                                    #[cfg(not(target_os = "macos"))]
-                                    let modifier = Key::Control;
-
-                                    // IMPORTANT: Release all modifier keys from the hotkey first
-                                    // When user presses Ctrl+Shift+T (or Cmd+Shift+T on macOS), those keys are still held
-                                    let _ = enigo.key(Key::Shift, Direction::Release);
-                                    let _ = enigo.key(modifier, Direction::Release);
-                                    let _ = enigo.key(Key::Unicode('t'), Direction::Release);
-
-                                    // Wait for keys to fully release
-                                    std::thread::sleep(std::time::Duration::from_millis(100));
-
-                                    // Now simulate a clean Cmd+C (macOS) or Ctrl+C (Windows/Linux)
-                                    let _ = enigo.key(modifier, Direction::Press);
-                                    std::thread::sleep(std::time::Duration::from_millis(20));
-                                    let _ = enigo.key(Key::Unicode('c'), Direction::Click);
-                                    std::thread::sleep(std::time::Duration::from_millis(20));
-                                    let _ = enigo.key(modifier, Direction::Release);
+                                    let _ = std::process::Command::new("osascript")
+                                        .arg("-e")
+                                        .arg("tell application \"System Events\" to keystroke \"c\" using command down")
+                                        .output();
 
                                     // Wait for clipboard to update
                                     std::thread::sleep(std::time::Duration::from_millis(200));
+                                }
+
+                                #[cfg(not(target_os = "macos"))]
+                                {
+                                    // On Windows/Linux, use enigo to simulate Ctrl+C
+                                    if let Ok(mut enigo) = enigo::Enigo::new(&enigo::Settings::default()) {
+                                        use enigo::{Keyboard, Key, Direction};
+
+                                        // Release all modifier keys from the hotkey first
+                                        // When user presses Ctrl+Shift+T, those keys are still held
+                                        let _ = enigo.key(Key::Shift, Direction::Release);
+                                        let _ = enigo.key(Key::Control, Direction::Release);
+                                        let _ = enigo.key(Key::Unicode('t'), Direction::Release);
+
+                                        // Wait for keys to fully release
+                                        std::thread::sleep(std::time::Duration::from_millis(100));
+
+                                        // Now simulate a clean Ctrl+C
+                                        let _ = enigo.key(Key::Control, Direction::Press);
+                                        std::thread::sleep(std::time::Duration::from_millis(20));
+                                        let _ = enigo.key(Key::Unicode('c'), Direction::Click);
+                                        std::thread::sleep(std::time::Duration::from_millis(20));
+                                        let _ = enigo.key(Key::Control, Direction::Release);
+
+                                        // Wait for clipboard to update
+                                        std::thread::sleep(std::time::Duration::from_millis(200));
+                                    }
                                 }
 
                                 // Emit event to frontend with clipboard text
