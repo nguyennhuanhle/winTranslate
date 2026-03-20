@@ -189,7 +189,7 @@ listen("check-update", async () => {
     await resizeToFit();
 
     try {
-        const { check } = await import("@tauri-apps/plugin-updater");
+        const { check } = window.__TAURI__.updater;
         const update = await check();
 
         loading.classList.add("hidden");
@@ -251,7 +251,7 @@ document.getElementById("update-btn").addEventListener("click", async () => {
         });
 
         // Relaunch after install
-        const { relaunch } = await import("@tauri-apps/plugin-process");
+        const { relaunch } = window.__TAURI__.process;
         await relaunch();
     } catch (e) {
         updateBtn.disabled = false;
