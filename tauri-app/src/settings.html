@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>winTranslate — Settings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="settings.css" />
+</head>
+<body>
+    <div id="settings-app">
+        <!-- Header -->
+        <div class="settings-header">
+            <div class="header-title">
+                <span class="header-icon">🌐</span>
+                <div>
+                    <h1>winTranslate</h1>
+                    <span class="version" id="app-version">Settings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+            <!-- Target Language -->
+            <div class="setting-group">
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-icon">🌍</span>
+                        <div>
+                            <div class="setting-label">Target Language / Ngôn ngữ đích</div>
+                            <div class="setting-desc">Translate selected text into this language</div>
+                        </div>
+                    </div>
+                    <select id="target-lang" class="setting-select">
+                        <option value="vi">Tiếng Việt</option>
+                        <option value="en">English</option>
+                        <option value="zh-CN">中文 (简体)</option>
+                        <option value="zh-TW">中文 (繁體)</option>
+                        <option value="ja">日本語</option>
+                        <option value="ko">한국어</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="th">ภาษาไทย</option>
+                        <option value="ru">Русский</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Startup Options -->
+            <div class="setting-group">
+                <div class="group-title">Startup / Khởi động</div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-icon">🚀</span>
+                        <div>
+                            <div class="setting-label">Run at system startup</div>
+                            <div class="setting-desc">Automatically launch when you log in</div>
+                        </div>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="autostart-toggle" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="setting-row">
+                    <div class="setting-info">
+                        <span class="setting-icon">📋</span>
+                        <div>
+                            <div class="setting-label">Show this panel on startup</div>
+                            <div class="setting-desc">Open settings when the app launches</div>
+                        </div>
+                    </div>
+                    <label class="toggle">
+                        <input type="checkbox" id="show-startup-toggle" />
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Shortcut Info -->
+            <div class="setting-group">
+                <div class="group-title">Shortcut / Phím tắt</div>
+                <div class="shortcut-display">
+                    <span class="setting-icon">⌨️</span>
+                    <span>Press <kbd id="shortcut-key">Ctrl+Shift+T</kbd> anywhere to translate selected text</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="settings-footer">
+            <div class="footer-status" id="save-status"></div>
+            <div class="footer-credit">
+                Developed by <a href="https://edtechcorner.com/" target="_blank">Mr Le Nguyen Nhu Anh</a> © 2026
+            </div>
+        </div>
+    </div>
+
+    <script src="settings.js"></script>
+</body>
+</html>

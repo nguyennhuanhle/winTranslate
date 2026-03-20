@@ -19,6 +19,19 @@
         "decorations": false,
         "alwaysOnTop": true,
         "skipTaskbar": true
+      },
+      {
+        "label": "settings",
+        "title": "winTranslate — Settings",
+        "url": "settings.html",
+        "width": 500,
+        "height": 480,
+        "resizable": false,
+        "visible": false,
+        "decorations": true,
+        "center": true,
+        "alwaysOnTop": false,
+        "skipTaskbar": false
       }
     ],
     "security": {

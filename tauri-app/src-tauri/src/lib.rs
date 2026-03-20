@@ -1,9 +1,12 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use tauri::{
     menu::{CheckMenuItem, Menu, MenuItem, Submenu},
     tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager,
 };
+use tauri_plugin_autostart::MacosLauncher;
+use tauri_plugin_autostart::ManagerExt;
+use tauri_plugin_store::StoreExt;
 
 mod translate;
 
@@ -14,12 +17,19 @@ struct TranslatePayload {
     error: Option<String>,
 }
 
-// Store the current target language
+// Store the current target language and enabled state
 use std::sync::Mutex;
 
 struct AppState {
     target_lang: Mutex<String>,
     enabled: Mutex<bool>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct SettingsResponse {
+    target_lang: String,
+    autostart: bool,
+    show_on_startup: bool,
 }
 
 #[tauri::command]
@@ -62,6 +72,71 @@ async fn hide_popup(app: AppHandle) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+async fn get_settings(app: AppHandle) -> Result<SettingsResponse, String> {
+    let store = app.store("settings.json").map_err(|e| e.to_string())?;
+
+    let target_lang = store
+        .get("target_lang")
+        .and_then(|v| v.as_str().map(String::from))
+        .unwrap_or_else(|| "vi".to_string());
+
+    let autostart = store
+        .get("autostart")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+
+    let show_on_startup = store
+        .get("show_on_startup")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(true);
+
+    Ok(SettingsResponse {
+        target_lang,
+        autostart,
+        show_on_startup,
+    })
+}
+
+#[tauri::command]
+async fn save_setting(app: AppHandle, key: String, value: String) -> Result<(), String> {
+    let store = app.store("settings.json").map_err(|e| e.to_string())?;
+
+    // Parse the JSON value
+    let parsed: serde_json::Value =
+        serde_json::from_str(&value).map_err(|e| e.to_string())?;
+
+    store.set(key.clone(), parsed.clone());
+
+    // If target_lang changed, update app state and tray
+    if key == "target_lang" {
+        if let Some(lang) = parsed.as_str() {
+            let state = app.state::<AppState>();
+            *state.target_lang.lock().unwrap() = lang.to_string();
+
+            let enabled = *state.enabled.lock().unwrap();
+            let new_menu = create_tray_menu(&app, enabled, lang);
+            if let Some(tray) = app.tray_by_id("main-tray") {
+                let _ = tray.set_menu(Some(new_menu));
+            }
+        }
+    }
+
+    // If autostart changed, toggle it
+    if key == "autostart" {
+        if let Some(enabled) = parsed.as_bool() {
+            let autostart_manager = app.autolaunch();
+            if enabled {
+                let _ = autostart_manager.enable();
+            } else {
+                let _ = autostart_manager.disable();
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn create_tray_menu(app: &AppHandle, enabled: bool, current_lang: &str) -> Menu<tauri::Wry> {
     let langs: Vec<(&str, &str)> = vec![
         ("vi", "Tiếng Việt"),
@@ -97,6 +172,10 @@ fn create_tray_menu(app: &AppHandle, enabled: bool, current_lang: &str) -> Menu<
         lang_submenu.append(&item).expect("failed to append");
     }
 
+    let settings_item =
+        MenuItem::with_id(app, "settings", "Settings / Cài đặt", true, None::<&str>)
+            .expect("failed to create settings item");
+
     let help_item =
         MenuItem::with_id(app, "help", "Help / Hướng dẫn", true, None::<&str>)
             .expect("failed to create help item");
@@ -111,6 +190,7 @@ fn create_tray_menu(app: &AppHandle, enabled: bool, current_lang: &str) -> Menu<
     let menu = Menu::new(app).expect("failed to create menu");
     menu.append(&enable_item).unwrap();
     menu.append(&lang_submenu).unwrap();
+    menu.append(&settings_item).unwrap();
     menu.append(&help_item).unwrap();
     menu.append(&update_item).unwrap();
     menu.append(&quit_item).unwrap();
@@ -125,14 +205,40 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(tauri_plugin_autostart::init(
+            MacosLauncher::LaunchAgent,
+            None,
+        ))
         .manage(AppState {
             target_lang: Mutex::new("vi".to_string()),
             enabled: Mutex::new(true),
         })
-        .invoke_handler(tauri::generate_handler![translate_text, resize_popup, hide_popup])
+        .invoke_handler(tauri::generate_handler![
+            translate_text,
+            resize_popup,
+            hide_popup,
+            get_settings,
+            save_setting,
+        ])
         .setup(|app| {
+            // Load saved settings from store
+            {
+                let store = app.handle().store("settings.json").ok();
+                if let Some(ref store) = store {
+                    // Restore target language
+                    if let Some(lang) = store.get("target_lang").and_then(|v| v.as_str().map(String::from)) {
+                        let state = app.state::<AppState>();
+                        *state.target_lang.lock().unwrap() = lang;
+                    }
+                }
+            }
+
+            let state = app.state::<AppState>();
+            let current_lang = state.target_lang.lock().unwrap().clone();
+
             // Build tray icon
-            let tray_menu = create_tray_menu(app.handle(), true, "vi");
+            let tray_menu = create_tray_menu(app.handle(), true, &current_lang);
 
             let _tray = TrayIconBuilder::with_id("main-tray")
                 .menu(&tray_menu)
@@ -161,10 +267,22 @@ pub fn run() {
                         let state = app.state::<AppState>();
                         *state.target_lang.lock().unwrap() = lang_code.clone();
 
+                        // Also save to store
+                        if let Ok(store) = app.store("settings.json") {
+                            store.set("target_lang", serde_json::json!(lang_code));
+                        }
+
                         let enabled = *state.enabled.lock().unwrap();
                         let new_menu = create_tray_menu(app, enabled, &lang_code);
                         if let Some(tray) = app.tray_by_id("main-tray") {
                             let _ = tray.set_menu(Some(new_menu));
+                        }
+                    } else if id == "settings" {
+                        // Show settings window
+                        if let Some(window) = app.get_webview_window("settings") {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = app.emit_to("settings", "reload-settings", ());
                         }
                     } else if id == "help" {
                         // Show help window
@@ -199,6 +317,48 @@ pub fn run() {
                 )
                 .icon_as_template(false)
                 .build(app)?;
+
+            // Intercept close on settings window — hide instead of quit
+            if let Some(settings_window) = app.get_webview_window("settings") {
+                settings_window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        api.prevent_close();
+                        // The window handle from the event doesn't give us direct access,
+                        // but we already captured settings_window in the outer scope.
+                        // We need to hide via a different approach — emit an event.
+                    }
+                });
+            }
+
+            // Use a window-level close handler via the app handle
+            let app_handle_for_close = app.handle().clone();
+            if let Some(settings_window) = app.get_webview_window("settings") {
+                settings_window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        api.prevent_close();
+                        if let Some(win) = app_handle_for_close.get_webview_window("settings") {
+                            let _ = win.hide();
+                        }
+                    }
+                });
+            }
+
+            // Show settings window on startup if preference allows
+            {
+                let should_show = app
+                    .handle()
+                    .store("settings.json")
+                    .ok()
+                    .and_then(|store| store.get("show_on_startup").and_then(|v| v.as_bool()))
+                    .unwrap_or(true); // default: show on startup
+
+                if should_show {
+                    if let Some(settings_window) = app.get_webview_window("settings") {
+                        let _ = settings_window.show();
+                        let _ = settings_window.set_focus();
+                    }
+                }
+            }
 
             // Register global shortcut: Ctrl+Shift+T (or Cmd+Shift+T on macOS)
             use tauri_plugin_global_shortcut::{GlobalShortcutExt, ShortcutState};
@@ -339,4 +499,3 @@ pub fn run() {
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
-
